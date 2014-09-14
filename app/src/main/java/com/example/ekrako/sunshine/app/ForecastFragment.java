@@ -34,7 +34,7 @@ import java.util.List;
 * Created by ekrako on 09/09/14.
 */
 public class ForecastFragment extends Fragment {
-
+    private  ArrayAdapter<String> mForecastAdapter;
     public ForecastFragment() {
     }
     @Override
@@ -60,7 +60,7 @@ public class ForecastFragment extends Fragment {
         if (id == R.id.action_refresh) {
             FetchWeatherTask weatherTask = new FetchWeatherTask();
 
-            weatherTask.execute("94043");
+            weatherTask.execute("eilat");
             String[] data =null;
             return true;
         }
@@ -83,7 +83,7 @@ public class ForecastFragment extends Fragment {
               };
 
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
-        ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast
+        mForecastAdapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast
         ,R.id.list_item_forecast_textview,weekForecast);
         View rootView = inflater.inflate(R.layout.fragment_my, container, false);
 
@@ -94,6 +94,7 @@ public class ForecastFragment extends Fragment {
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
+
         @Override
         protected String[] doInBackground(String... params) {
 
@@ -129,7 +130,7 @@ public class ForecastFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+//                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -158,7 +159,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG,forecastJsonStr);
+
             } catch (IOException e) {
                 Log.e(LOG_TAG, "ForecastFragmentError ", e);
                 // If the code didn't successfully get the weather data, there's no point in attempting
@@ -176,14 +177,13 @@ public class ForecastFragment extends Fragment {
                     }
                 }
             }
-            Log.v(LOG_TAG,forecastJsonStr);
             String[] forecastStringArray = null;
             try {
                 forecastStringArray = getWeatherDataFromJson(forecastJsonStr,numDays);
             } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
-            Log.v(LOG_TAG,forecastStringArray[0]);
             return forecastStringArray;
         }
         /* The date/time conversion code is going to be moved outside the asynctask later,
@@ -261,7 +261,22 @@ public class ForecastFragment extends Fragment {
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
+//            for (String s : resultStrs) {
+//                Log.v(LOG_TAG, "Forecast entry: " + s);
+//            }
             return resultStrs;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+
+            if (result != null) {
+                mForecastAdapter.clear();
+                for (String dayForecastStr : result) {
+                    mForecastAdapter.add(dayForecastStr);
+                }
+            }
+            
         }
     }
 }
