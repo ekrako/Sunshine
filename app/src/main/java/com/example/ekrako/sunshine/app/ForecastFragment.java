@@ -1,5 +1,6 @@
 package com.example.ekrako.sunshine.app;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -61,7 +63,6 @@ public class ForecastFragment extends Fragment {
             FetchWeatherTask weatherTask = new FetchWeatherTask();
 
             weatherTask.execute("eilat");
-            String[] data =null;
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -89,6 +90,15 @@ public class ForecastFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                Intent detailActivityIntent = new Intent(getActivity(),DetailActivity.class);
+                startActivity(detailActivityIntent);
+
+            }
+        });
         return rootView;
     }
 
@@ -205,8 +215,8 @@ public class ForecastFragment extends Fragment {
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
 
-            String highLowStr = roundedHigh + "/" + roundedLow;
-            return highLowStr;
+
+            return  roundedHigh + "/" + roundedLow;
         }
 
         /**
@@ -276,7 +286,7 @@ public class ForecastFragment extends Fragment {
                     mForecastAdapter.add(dayForecastStr);
                 }
             }
-            
+
         }
     }
 }
